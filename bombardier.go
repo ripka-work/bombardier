@@ -29,6 +29,8 @@ type bombardier struct {
 	req3xx uint64
 	req4xx uint64
 	req5xx uint64
+	req503 uint64
+	req500 uint64
 	others uint64
 
 	conf        config
@@ -241,7 +243,14 @@ func (b *bombardier) writeStatistics(
 	case 4:
 		counter = &b.req4xx
 	case 5:
-		counter = &b.req5xx
+		switch code {
+		  case 500:
+		    counter = &b.req500
+		  case 503:
+		    counter = &b.req503
+		  default:
+		    counter = &b.req5xx
+		}
 	default:
 		counter = &b.others
 	}
@@ -385,6 +394,8 @@ func (b *bombardier) gatherInfo() internal.TestInfo {
 			Req2XX: b.req2xx,
 			Req3XX: b.req3xx,
 			Req4XX: b.req4xx,
+			Req500: b.req500,
+			Req503: b.req503,
 			Req5XX: b.req5xx,
 			Others: b.others,
 
